@@ -10,6 +10,12 @@
       "binaryDir": "${sourceDir}/windows-msvc"
     },
     {
+      "name": "windows-ninja",
+      "displayName": "Windows MSVC + Ninja (CI)",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/windows-ninja"
+    },
+    {
       "name": "windows-clang-cl",
       "displayName": "Windows clang-cl (VS2022)",
       "generator": "Visual Studio 17 2022",
@@ -41,6 +47,7 @@
   ],
   "buildPresets": [
     { "name": "windows-msvc", "configurePreset": "windows-msvc", "configuration": "Release" },
+    { "name": "windows-ninja", "configurePreset": "windows-ninja", "configuration": "Release" },
     { "name": "windows-clang-cl", "configurePreset": "windows-clang-cl", "configuration": "Release" },
     { "name": "windows-mingw", "configurePreset": "windows-mingw", "configuration": "Release" },
     { "name": "linux-gcc", "configurePreset": "linux-gcc", "configuration": "Release" },

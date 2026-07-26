@@ -7,11 +7,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-      - working-directory: Build
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup Ninja
+        run: choco install ninja -y
+      - name: Build + stage
+        working-directory: Build
         run: |
-          cmake --preset windows-msvc
-          cmake --build --preset windows-msvc
-          cmake --install windows-msvc --config Release --prefix ../dist
+          cmake --preset windows-ninja
+          cmake --build --preset windows-ninja
+          cmake --install windows-ninja --config Release --prefix ../dist
       - uses: actions/upload-artifact@v4
         with: { name: nevarea-windows-x64, path: dist/ }
       - uses: softprops/action-gh-release@v2

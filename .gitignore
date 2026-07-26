@@ -2,6 +2,7 @@
 /Build/bld.log
 /Build/cfg.log
 /Build/windows-msvc/
+/Build/windows-ninja/
 /Build/windows-clang-cl/
 /Build/windows-mingw/
 /Build/linux-gcc/

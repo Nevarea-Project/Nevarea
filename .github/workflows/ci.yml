@@ -6,13 +6,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: windows-latest, preset: windows-msvc }
-          # TODO: enable once linux platform is supported - (look at windowsystem.hpp)
+          - { os: windows-latest, preset: windows-ninja }
+          # TODO: enable once the platform seam lands (linux/mac compile) - see WindowSystem.cpp
           #- { os: ubuntu-latest, preset: linux-gcc }
           #- { os: ubuntu-latest, preset: linux-clang }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Setup MSVC dev environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup Ninja (Windows)
+        if: runner.os == 'Windows'
+        run: choco install ninja -y
       - name: Install Ninja (Linux)
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y ninja-build
