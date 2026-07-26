@@ -1,0 +1,17 @@
+name: Bug Report
+description: Something in Nevarea doesn't work properly
+labels: [bug]
+body:
+  - type: input
+    id: gpu
+    attributes: { label: GPU + driver, placeholder: "RTX 3060 / 552.44" }
+  - type: input
+    id: os
+    attributes: { label: OS + compiler, placeholder: "Windows 11 / MSVC 19.4" }
+  - type: textarea
+    id: what
+    attributes: { label: What is the issue }
+    validations: { required: true }
+  - type: textarea
+    id: repro
+    attributes: { label: The steps to reproduce said issue }

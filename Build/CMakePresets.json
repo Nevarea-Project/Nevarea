@@ -1,0 +1,49 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": { "major": 3, "minor": 21, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "windows-msvc",
+      "displayName": "Windows MSVC (VS2022)",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/windows-msvc"
+    },
+    {
+      "name": "windows-clang-cl",
+      "displayName": "Windows clang-cl (VS2022)",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "toolset": "ClangCL",
+      "binaryDir": "${sourceDir}/windows-clang-cl"
+    },
+    {
+      "name": "windows-mingw",
+      "displayName": "Windows MinGW (gcc)",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/windows-mingw",
+      "cacheVariables": { "CMAKE_C_COMPILER": "gcc", "CMAKE_CXX_COMPILER": "g++" }
+    },
+    {
+      "name": "linux-gcc",
+      "displayName": "Linux GCC",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/linux-gcc",
+      "cacheVariables": { "CMAKE_C_COMPILER": "gcc", "CMAKE_CXX_COMPILER": "g++" }
+    },
+    {
+      "name": "linux-clang",
+      "displayName": "Linux Clang",
+      "generator": "Ninja Multi-Config",
+      "binaryDir": "${sourceDir}/linux-clang",
+      "cacheVariables": { "CMAKE_C_COMPILER": "clang", "CMAKE_CXX_COMPILER": "clang++" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "windows-msvc", "configurePreset": "windows-msvc", "configuration": "Release" },
+    { "name": "windows-clang-cl", "configurePreset": "windows-clang-cl", "configuration": "Release" },
+    { "name": "windows-mingw", "configurePreset": "windows-mingw", "configuration": "Release" },
+    { "name": "linux-gcc", "configurePreset": "linux-gcc", "configuration": "Release" },
+    { "name": "linux-clang", "configurePreset": "linux-clang", "configuration": "Release" }
+  ]
+}

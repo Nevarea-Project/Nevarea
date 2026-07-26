@@ -1,0 +1,24 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, preset: windows-msvc }
+          # TODO: enable once linux platform is supported - (look at windowsystem.hpp)
+          #- { os: ubuntu-latest, preset: linux-gcc }
+          #- { os: ubuntu-latest, preset: linux-clang }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Ninja (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y ninja-build
+      - name: Configure
+        working-directory: Build
+        run: cmake --preset ${{ matrix.preset }}
+      - name: Build
+        working-directory: Build
+        run: cmake --build --preset ${{ matrix.preset }}

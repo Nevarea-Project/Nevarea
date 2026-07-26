@@ -1,0 +1,9 @@
+/Build/.cmake/
+/Build/bld.log
+/Build/cfg.log
+/Build/windows-msvc/
+/Build/windows-clang-cl/
+/Build/windows-mingw/
+/Build/linux-gcc/
+/Build/linux-clang/
+/dist/
