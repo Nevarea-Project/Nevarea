@@ -1,6 +1,7 @@
 #include "VulkanDevice.hpp"
 #include "VulkanSpec.hpp"
 #include "VulkanDebug.hpp"
+#include <cstdint>
 
 namespace Nevarea::Renderer {
 	QueueFamilyIndices find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface) {
@@ -51,7 +52,7 @@ namespace Nevarea::Renderer {
 	}
 
 	static std::vector<std::string> get_available_extensions(VkPhysicalDevice device) {
-		uint32_t extension_count = 0;
+		u32 extension_count = 0;
 		VK_CHECK(vkEnumerateDeviceExtensionProperties(device, nullptr, &extension_count, nullptr));
 
 		std::vector<VkExtensionProperties> extensions(extension_count);
@@ -158,7 +159,6 @@ namespace Nevarea::Renderer {
 		device_context.capabilities.present_id2  = has(VK_KHR_PRESENT_ID_2_EXTENSION_NAME);
 		device_context.capabilities.present_wait2 = has(VK_KHR_PRESENT_WAIT_2_EXTENSION_NAME);
 		device_context.capabilities.swapchain_maintenance1 = has(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME);
-		device_context.capabilities.descriptor_buffer = has(VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME);
 		device_context.capabilities.descriptor_heap = has(VK_EXT_DESCRIPTOR_HEAP_EXTENSION_NAME);
 		device_context.capabilities.mutable_descriptor_type = has(VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME);
 		device_context.capabilities.shader_object = has(VK_EXT_SHADER_OBJECT_EXTENSION_NAME);
@@ -242,7 +242,7 @@ namespace Nevarea::Renderer {
 		vkGetPhysicalDeviceProperties(device_context->physical_device, &device_properties);
 		vkGetPhysicalDeviceFeatures(device_context->physical_device, &device_features);
 
-		std::cout << "Physical Device Chosen: " << device_properties.deviceName << std::endl;
+		NEVAREA_LOG(LogLevel::INFO, "Physical Device Chosen: %s", device_properties.deviceName);
 	}
 
 	void vulkan_device_create_logical_device(VkSurfaceKHR surface, DeviceContext* device_context)
@@ -307,7 +307,6 @@ namespace Nevarea::Renderer {
 		VkPhysicalDeviceExtendedDynamicState3FeaturesEXT dyn_state3{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_3_FEATURES_EXT };
 		VkPhysicalDeviceShaderObjectFeaturesEXT shader_obj{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SHADER_OBJECT_FEATURES_EXT };
 		VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT mutable_desc{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MUTABLE_DESCRIPTOR_TYPE_FEATURES_EXT };
-		VkPhysicalDeviceDescriptorBufferFeaturesEXT desc_buf{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_BUFFER_FEATURES_EXT };
 		VkPhysicalDeviceDescriptorHeapFeaturesEXT desc_heap{ VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_FEATURES_EXT };
 
 		void* opt_head = nullptr;
@@ -359,11 +358,6 @@ namespace Nevarea::Renderer {
 			mutable_desc.pNext = opt_head;
 			opt_head = &mutable_desc;
 		}
-		if (device_context->capabilities.descriptor_buffer) {
-			desc_buf.descriptorBuffer = VK_TRUE;
-			desc_buf.pNext = opt_head;
-			opt_head = &desc_buf;
-		}
 		if (device_context->capabilities.descriptor_heap) {
 			desc_heap.descriptorHeap = VK_TRUE;
 			desc_heap.pNext = opt_head;
@@ -388,9 +382,6 @@ namespace Nevarea::Renderer {
             tail->pNext = (VkBaseOutStructure*)device_context->user_feature_chain;
         }
 
-		// quick hacky fix for unsupported features before i properly split this up
-		//VK_ASSERT(vkCreateDevice(device_context->physical_device, &create_info, nullptr, &device_context->device));
-
 		VkResult result = vkCreateDevice(device_context->physical_device, &create_info, nullptr, &device_context->device);
 		if (result != VK_SUCCESS && device_context->user_feature_chain) {
             tail->pNext = nullptr;
@@ -408,8 +399,6 @@ namespace Nevarea::Renderer {
 		vkGetDeviceQueue(device_context->device, indices.present_family.value(), 0, &device_context->present_queue);
 		vkGetDeviceQueue(device_context->device, indices.compute_family.value(), 0, &device_context->compute_queue);
 		vkGetDeviceQueue(device_context->device, indices.transfer_family.value(), 0, &device_context->transfer_queue);
-
-		vulkan_debug_init(device_context->device);
 
 		VK_NAME(device_context->device, VK_OBJECT_TYPE_DEVICE, device_context->device, "nevarea_device");
 		VK_NAME(device_context->device, VK_OBJECT_TYPE_QUEUE, device_context->graphics_queue, "graphics_queue");

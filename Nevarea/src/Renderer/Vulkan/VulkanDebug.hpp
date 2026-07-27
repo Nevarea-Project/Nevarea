@@ -7,7 +7,6 @@ namespace Nevarea::Renderer {
 	VkResult create_debug_utils_messenger_ext(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* create_info, const VkAllocationCallbacks* allocator, VkDebugUtilsMessengerEXT* debug_messenger);
 	void destroy_debug_utils_messenger_ext(VkInstance instance, VkDebugUtilsMessengerEXT debug_messenger, const VkAllocationCallbacks* allocator);
 	void populate_debug_create_info(VkDebugUtilsMessengerCreateInfoEXT& debug_create_info);
-	void vulkan_debug_init(VkDevice device);
 	void vulkan_set_debug_name(VkDevice device, VkObjectType type, uint64_t handle, const char* name);
 }
 

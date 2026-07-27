@@ -12,7 +12,7 @@ namespace Nevarea::Renderer {
 		"k_format_info is out of sync with the public Format enum");
 
 	static const FormatInfo& format_info(Format format) {
-		return k_format_info[static_cast<uint32_t>(format)];
+		return k_format_info[static_cast<u32>(format)];
 	}
 
 	// TODO: place this in vulkantranslate
@@ -20,11 +20,11 @@ namespace Nevarea::Renderer {
 		return format_info(format).vk;
 	}
 
-	static size_t format_size(Format format, uint32_t width, uint32_t height) {
+	static usize format_size(Format format, u32 width, u32 height) {
 		const FormatInfo& info = format_info(format);
-		uint32_t bw = (width  + info.block_width  - 1) / info.block_width;
-		uint32_t bh = (height + info.block_height - 1) / info.block_height;
-		return static_cast<size_t>(bw) * bh * info.block_bytes;
+		u32 bw = (width  + info.block_width  - 1) / info.block_width;
+		u32 bh = (height + info.block_height - 1) / info.block_height;
+		return static_cast<usize>(bw) * bh * info.block_bytes;
 	}
 
 	static void query_acceleration_structure_properties(ResourceManager& manager) {
@@ -69,7 +69,7 @@ namespace Nevarea::Renderer {
         create_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         create_info.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
         create_info.maxSets = 1;
-        create_info.poolSizeCount = (uint32_t)pool_sizes.size();
+        create_info.poolSizeCount = static_cast<u32>(pool_sizes.size());
         create_info.pPoolSizes = pool_sizes.data();
 
 		VK_ASSERT(vkCreateDescriptorPool(manager.device, &create_info, nullptr, &manager.descriptor_pool));
@@ -91,14 +91,14 @@ namespace Nevarea::Renderer {
 
         VkDescriptorSetLayoutBindingFlagsCreateInfo layout_flags{};
         layout_flags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-        layout_flags.bindingCount = (uint32_t)flags.size();
+        layout_flags.bindingCount = static_cast<u32>(flags.size());
         layout_flags.pBindingFlags = flags.data();
 
         VkDescriptorSetLayoutCreateInfo layout_info{};
         layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         layout_info.pNext = &layout_flags;
         layout_info.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
-        layout_info.bindingCount = (uint32_t)bindings.size();
+        layout_info.bindingCount = static_cast<u32>(bindings.size());
         layout_info.pBindings = bindings.data();
 
 		VK_ASSERT(vkCreateDescriptorSetLayout(manager.device, &layout_info, nullptr, &manager.descriptor_layout));
@@ -181,7 +181,7 @@ namespace Nevarea::Renderer {
 
     	for (size_t i = 0; i < manager.buffers.data.size(); ++i) {
 			if (manager.buffers.data[i].buffer != VK_NULL_HANDLE) {
-				std::cerr << "[NEVAREA]: [RESOURCE MANAGER] Leaked buffer at slot " << i << std::endl;
+			    NEVAREA_LOG(LogLevel::WARN, "Leaked buffer at slot: '%zu'", i);
 				vmaDestroyBuffer(manager.allocator, manager.buffers.data[i].buffer, manager.buffers.data[i].allocation);
 			}
 		}
@@ -190,21 +190,22 @@ namespace Nevarea::Renderer {
 		manager.buffers.generations.clear();
 		manager.buffers.free_list.clear();
 
-		for (auto& img : manager.images.data) {
-            if (img.image != VK_NULL_HANDLE) {
-                std::cerr << "[NEVAREA]: [RESOURCE MANAGER] Leaked image" << std::endl;
+		for (size_t i = 0; i < manager.images.data.size(); i++) {
+		    auto& img = manager.images.data[i];
+			if (img.image != VK_NULL_HANDLE) {
+                NEVAREA_LOG(LogLevel::WARN, "Leaked image at slot: '%zu' (format %d)", i, static_cast<int>(img.format));
                 if (img.storage_view != VK_NULL_HANDLE) vkDestroyImageView(manager.device, img.storage_view, nullptr);
                 vkDestroyImageView(manager.device, img.view, nullptr);
                 vmaDestroyImage(manager.allocator, img.image, img.allocation);
             }
-        }
+		}
         manager.images.data.clear();
         manager.images.generations.clear();
         manager.images.free_list.clear();
 
         for (size_t i = 0; i < manager.samplers.data.size(); ++i) {
             if (manager.samplers.data[i] != VK_NULL_HANDLE) {
-                std::cerr << "[NEVAREA]: [RESOURCE MANAGER] Leaked sampler at slot " << i << std::endl;
+ 			    NEVAREA_LOG(LogLevel::WARN, "Leaked sampler at slot: '%zu'", i);
                 vkDestroySampler(manager.device, manager.samplers.data[i], nullptr);
             }
         }
@@ -231,9 +232,9 @@ namespace Nevarea::Renderer {
             "VK_KHR_acceleration_structure is not enabled! request it before you call create_blas");
 
         std::vector<VkAccelerationStructureGeometryKHR> geometries(description.geometry_count);
-        std::vector<uint32_t> prim_counts(description.geometry_count);
+        std::vector<u32> prim_counts(description.geometry_count);
 
-        for (uint32_t i = 0; i < description.geometry_count; i++) {
+        for (u32 i = 0; i < description.geometry_count; i++) {
             const AccelGeometry& accel = description.geometries[i];
             VkAccelerationStructureGeometryKHR& accel_geometry = geometries[i];
 
@@ -324,7 +325,7 @@ namespace Nevarea::Renderer {
         build.dstAccelerationStructure = accel;
 
         std::vector<VkAccelerationStructureBuildRangeInfoKHR> ranges(description.geometry_count);
-        for (uint32_t i = 0; i < description.geometry_count; i++) {
+        for (u32 i = 0; i < description.geometry_count; i++) {
             const AccelGeometry& geometry = description.geometries[i];
             ranges[i] = { geometry.primitive_count, geometry.primitive_offset, geometry.first_vertex, geometry.transform_offset };
         }
@@ -338,9 +339,9 @@ namespace Nevarea::Renderer {
         VkAccelerationStructureDeviceAddressInfoKHR accel_device_info{};
         accel_device_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
         accel_device_info.accelerationStructure = accel;
-        uint64_t address = vkGetAccelerationStructureDeviceAddressKHR(manager.device, &accel_device_info);
+        u64 address = vkGetAccelerationStructureDeviceAddressKHR(manager.device, &accel_device_info);
 
-        uint32_t index = manager.accels.add({ accel, backing, address });
+        u32 index = manager.accels.add({ accel, backing, address });
 
         VkWriteDescriptorSetAccelerationStructureKHR accel_write{};
         accel_write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
@@ -360,7 +361,7 @@ namespace Nevarea::Renderer {
         return { index, manager.accels.generations[index] };
 	}
 
-	uint64_t vulkan_get_accel_address(ResourceManager &manager, AccelStructHandle handle) {
+	u64 vulkan_get_accel_address(ResourceManager &manager, AccelStructHandle handle) {
 	    return manager.accels.get(handle.index, handle.generation).address;
 	}
 
@@ -419,7 +420,7 @@ namespace Nevarea::Renderer {
 		buffer_create_info.size = buffer_description.size;
 		buffer_create_info.usage = to_vk_buffer_usage(buffer_description.usage) | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
 
-		uint32_t families[2] = { manager.graphics_family, manager.transfer_family };
+		u32 families[2] = { manager.graphics_family, manager.transfer_family };
         if (manager.graphics_family != manager.transfer_family) {
             buffer_create_info.sharingMode = VK_SHARING_MODE_CONCURRENT;
             buffer_create_info.queueFamilyIndexCount = 2;
@@ -441,10 +442,10 @@ namespace Nevarea::Renderer {
 		VkBufferDeviceAddressInfo address_info{};
         address_info.sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
         address_info.buffer = buffer;
-        uint64_t address = vkGetBufferDeviceAddress(manager.device, &address_info);
+        u64 address = vkGetBufferDeviceAddress(manager.device, &address_info);
 
         BufferData buffer_data = { buffer, allocation, address };
-		uint32_t index = manager.buffers.add(buffer_data);
+		u32 index = manager.buffers.add(buffer_data);
 
 		return { index, manager.buffers.generations[index] };
 	}
@@ -481,7 +482,7 @@ namespace Nevarea::Renderer {
         record(cmd);
         VK_ASSERT(vkEndCommandBuffer(cmd));
 
-        uint64_t value = ++manager.transfer_value;
+        u64 value = ++manager.transfer_value;
 
         VkCommandBufferSubmitInfo submit_info{};
         submit_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
@@ -504,7 +505,7 @@ namespace Nevarea::Renderer {
         return { value, cmd };
 	}
 
-	void vulkan_upload_buffer(ResourceManager& manager, BufferHandle dst, const void* data, size_t size) {
+	void vulkan_upload_buffer(ResourceManager& manager, BufferHandle dst, const void* data, usize size) {
 	    VkBuffer dst_buffer = vulkan_get_buffer(manager, dst);
 
 		VkBufferCreateInfo stg_info{};
@@ -524,13 +525,6 @@ namespace Nevarea::Renderer {
         VK_ASSERT(vmaMapMemory(manager.allocator, staging_alloc, &mapped));
         memcpy(mapped, data, size);
         vmaUnmapMemory(manager.allocator, staging_alloc);
-
-        /*vulkan_immediate_submit(manager, [&](VkCommandBuffer cmd) {
-            VkBufferCopy region{ 0, 0, size };
-            vkCmdCopyBuffer(cmd, staging_buffer, dst_buffer, 1, &region);
-            });*/
-
-        //vmaDestroyBuffer(manager.allocator, staging_buffer, staging_alloc);
 
         TransferSubmit sub = submit_transfer(manager, [=](VkCommandBuffer cmd) {
             VkBufferCopy region{ 0, 0, size };
@@ -554,7 +548,7 @@ namespace Nevarea::Renderer {
 	ImageHandle vulkan_create_image(ResourceManager& manager, const ImageDescription& description)
 	{
 	    VkExtent2D extent = { description.width, description.height };
-	    VkFormat format = k_format_info[(uint32_t)description.format].vk;
+	    VkFormat format = k_format_info[(u32)description.format].vk;
 	    VkImageUsageFlags usage = to_vk_image_usage(description.usage);
 
 		AllocatedImage img{};
@@ -562,9 +556,9 @@ namespace Nevarea::Renderer {
 		img.format = description.format;
 		img.usage = usage;
 
-		uint32_t mips = description.mip_levels;
+		u32 mips = description.mip_levels;
 		if (mips == 0) {
-	        uint32_t m = std::max<uint32_t>(extent.width, extent.height);
+	        u32 m = std::max<u32>(extent.width, extent.height);
 			mips = 1;
 
 		    while (m > 1) {
@@ -585,7 +579,7 @@ namespace Nevarea::Renderer {
 		image_info.usage = usage;
 		image_info.flags = to_vk_image_create_flags(description.flags, description.image_type);
 
-		uint32_t families[2] = { manager.graphics_family, manager.transfer_family };
+		u32 families[2] = { manager.graphics_family, manager.transfer_family };
 		if (manager.graphics_family != manager.transfer_family) {
 		    image_info.sharingMode = VK_SHARING_MODE_CONCURRENT;
 			image_info.queueFamilyIndexCount = 2;
@@ -604,7 +598,7 @@ namespace Nevarea::Renderer {
 		view_info.image = img.image;
 		view_info.viewType = to_vk_image_view_type(description.image_type);
 		view_info.format = format;
-		view_info.subresourceRange = { k_format_info[(uint32_t)description.format].aspect, 0, mips, 0, description.array_layers };
+		view_info.subresourceRange = { k_format_info[(u32)description.format].aspect, 0, mips, 0, description.array_layers };
 		VK_ASSERT(vkCreateImageView(manager.device, &view_info, nullptr, &img.view));
 
 		if (usage & VK_IMAGE_USAGE_STORAGE_BIT) {
@@ -618,7 +612,7 @@ namespace Nevarea::Renderer {
             VK_ASSERT(vkCreateImageView(manager.device, &copy, nullptr, &img.storage_view));
         }
 
-		uint32_t index = manager.images.add(img);
+		u32 index = manager.images.add(img);
 
 		if (usage & VK_IMAGE_USAGE_STORAGE_BIT) {
 			VkDescriptorImageInfo desc_image{};
@@ -671,13 +665,13 @@ namespace Nevarea::Renderer {
 		return manager.images.get(handle.index, handle.generation);
 	}
 
-	void vulkan_upload_image(ResourceManager& manager, ImageHandle handle, const void* pixels, size_t size) {
+	void vulkan_upload_image(ResourceManager& manager, ImageHandle handle, const void* pixels, usize size) {
 	    AllocatedImage& img = vulkan_get_image(manager, handle);
 
 		NEVAREA_ASSERT((img.usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) != 0,
             "RESOURCE MANAGER", "upload_image: image must be created with ImageUsage::TRANSFER_DST!");
 
-		size_t expected = format_size(img.format, img.extent.width, img.extent.height);
+		[[maybe_unused]] usize expected = format_size(img.format, img.extent.width, img.extent.height);
 
 		NEVAREA_ASSERT(size >= expected, "RESOURCE MANAGER", "upload_image: pixel data smaller than image requires!");
 
@@ -698,40 +692,6 @@ namespace Nevarea::Renderer {
         memcpy(data, pixels, size);
         vmaUnmapMemory(manager.allocator, staging_alloc);
 
-        /*vulkan_immediate_submit(manager, [&](VkCommandBuffer cmd) {
-            transition_image(cmd, img.image,
-                img.current_layout,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT, 0,
-                VK_PIPELINE_STAGE_2_COPY_BIT, VK_ACCESS_2_TRANSFER_WRITE_BIT);
-
-            VkBufferImageCopy region{};
-            region.bufferOffset = 0;
-            region.bufferRowLength = 0;
-            region.bufferImageHeight = 0;
-            region.imageSubresource.aspectMask = k_format_info[(uint32_t)img.format].aspect;
-            region.imageSubresource.mipLevel = 0;
-            region.imageSubresource.baseArrayLayer = 0;
-            region.imageSubresource.layerCount = 1;
-            region.imageOffset = { 0, 0, 0 };
-            region.imageExtent = { img.extent.width, img.extent.height, 1 };
-
-            vkCmdCopyBufferToImage(cmd, staging, img.image,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                1, &region);
-
-            transition_image(cmd, img.image,
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-                VK_PIPELINE_STAGE_2_COPY_BIT, VK_ACCESS_2_TRANSFER_WRITE_BIT,
-                VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
-                VK_ACCESS_2_SHADER_SAMPLED_READ_BIT);
-
-            img.current_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        });
-
-        vmaDestroyBuffer(manager.allocator, staging, staging_alloc);*/
-
         TransferSubmit sub = submit_transfer(manager, [=](VkCommandBuffer cmd) {
             transition_image(cmd, img.image,
                 img.current_layout,
@@ -743,7 +703,7 @@ namespace Nevarea::Renderer {
             region.bufferOffset = 0;
             region.bufferRowLength = 0;
             region.bufferImageHeight = 0;
-            region.imageSubresource.aspectMask = k_format_info[(uint32_t)img.format].aspect;
+            region.imageSubresource.aspectMask = k_format_info[(u32)img.format].aspect;
             region.imageSubresource.mipLevel = 0;
             region.imageSubresource.baseArrayLayer = 0;
             region.imageSubresource.layerCount = 1;
@@ -817,7 +777,7 @@ namespace Nevarea::Renderer {
 
 		VK_ASSERT(vkCreateSampler(manager.device, &create_info, nullptr, &sampler));
 
-		uint32_t index = manager.samplers.add(sampler);
+		u32 index = manager.samplers.add(sampler);
 
 		VkDescriptorImageInfo image_info{};
 		image_info.sampler = sampler;

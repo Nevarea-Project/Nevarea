@@ -64,7 +64,7 @@ namespace Nevarea::Renderer {
 		Pool<PipelineContext> pipelines;
 
 		std::vector<PassData> passes;
-		int32_t current_pass_index = -1;
+		i32 current_pass_index = -1;
 
 		std::vector<ComputeDispatch> compute_dispatches;
 	};

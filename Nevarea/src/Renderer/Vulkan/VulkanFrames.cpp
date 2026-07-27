@@ -12,7 +12,7 @@ namespace Nevarea::Renderer {
 
 		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			recreate_swapchain(swapchain, device, surface, window);
-			vulkan_frame_sync_ensure_present_semaphores(frame, device.device, static_cast<uint32_t>(swapchain.images.size()));
+			vulkan_frame_sync_ensure_present_semaphores(frame, device.device, static_cast<u32>(swapchain.images.size()));
 			return VK_NULL_HANDLE;
 		}
 
@@ -55,7 +55,7 @@ namespace Nevarea::Renderer {
 		NEVAREA_ASSERT(pass.color.size() <= NEVAREA_MAX_COLOR_ATTACHMENTS, "VULKAN FRAMES",
 		    "the maximum amount of color attachments has been exceeded!");
 
-		for (size_t i = 0; i < (uint32_t)pass.color.size(); i++) {
+		for (size_t i = 0; i < pass.color.size(); i++) {
 		    const ColorAttachment& att = pass.color[i];
 
             VkRenderingAttachmentInfo color_attachment{};
@@ -73,7 +73,7 @@ namespace Nevarea::Renderer {
 		rendering_info.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
 		rendering_info.renderArea = { {0, 0}, swapchain.extent };
 		rendering_info.layerCount = 1;
-		rendering_info.colorAttachmentCount = (uint32_t)pass.color.size();
+		rendering_info.colorAttachmentCount = static_cast<u32>(pass.color.size());
 		rendering_info.pColorAttachments = color_attachments;
 
 		if (pass.depth.image.is_valid()) {
@@ -92,7 +92,7 @@ namespace Nevarea::Renderer {
 	}
 
 	static NEVAREA_FORCE_INLINE void handle_queues(FrameContext& frame, SwapchainContext& swapchain, DeviceContext& device, SurfaceContext& surface, WindowHandle window, VkCommandBuffer cmd, VkPipelineStageFlags2 image_stage, VkSemaphore transfer_timeline, uint64_t transfer_wait_value) {
-		uint32_t img_idx = swapchain.current_image_index;
+		u32 img_idx = swapchain.current_image_index;
 		VkSemaphore signal_semaphores[] = { frame.render_finished[img_idx] };
 
 		VkSemaphoreSubmitInfo waits[2]{};

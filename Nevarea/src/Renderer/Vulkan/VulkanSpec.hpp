@@ -26,7 +26,6 @@ namespace Nevarea::Renderer {
 	};
 
 	const std::vector<const char*> optional_device_extensions = {
-		VK_EXT_DESCRIPTOR_BUFFER_EXTENSION_NAME,
 		VK_EXT_DESCRIPTOR_HEAP_EXTENSION_NAME,
 		VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME,
 		VK_EXT_SHADER_OBJECT_EXTENSION_NAME,

@@ -2,7 +2,6 @@
 
 #include "Core/n_pch.hpp"
 #include "lib/Rendering.hpp"
-#include <wingdi.h>
 
 namespace Nevarea::Renderer {
     struct DeviceCapabilities {
@@ -13,7 +12,6 @@ namespace Nevarea::Renderer {
 		bool present_id2 = false;
 		bool present_wait2 = false;
 		bool swapchain_maintenance1 = false;
-		bool descriptor_buffer = false;
 		bool descriptor_heap = false;
 		bool mutable_descriptor_type = false;
 		bool shader_object = false;
@@ -35,10 +33,10 @@ namespace Nevarea::Renderer {
 
 		bool device_lost = false;
 
-		uint32_t graphics_family_index;
-		uint32_t compute_family_index;
-		uint32_t transfer_family_index;
-		uint32_t present_family_index;
+		u32 graphics_family_index;
+		u32 compute_family_index;
+		u32 transfer_family_index;
+		u32 present_family_index;
 
 		std::vector<const char*> enabled_extensions;
 		std::vector<const char*> requested_extensions;
@@ -47,10 +45,10 @@ namespace Nevarea::Renderer {
 	};
 
 	struct QueueFamilyIndices {
-		std::optional<uint32_t> graphics_family;
-		std::optional<uint32_t> present_family;
-		std::optional<uint32_t> compute_family;
-		std::optional<uint32_t> transfer_family;
+		std::optional<u32> graphics_family;
+		std::optional<u32> present_family;
+		std::optional<u32> compute_family;
+		std::optional<u32> transfer_family;
 
 		bool is_complete() const {
 			return graphics_family.has_value() && present_family.has_value() && compute_family.has_value() && transfer_family.has_value();

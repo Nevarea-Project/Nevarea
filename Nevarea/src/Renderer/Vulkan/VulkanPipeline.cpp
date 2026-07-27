@@ -32,7 +32,7 @@ namespace Nevarea::Renderer {
 		VkShaderModuleCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 		create_info.codeSize = shader_code.size();
-		create_info.pCode = reinterpret_cast<const uint32_t*>(shader_code.data());
+		create_info.pCode = reinterpret_cast<const u32*>(shader_code.data());
 
 		VK_ASSERT(vkCreateShaderModule(device, &create_info, nullptr, shader_module));
 	}
