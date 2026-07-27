@@ -12,7 +12,7 @@ jobs:
           #- { os: ubuntu-latest, preset: linux-clang }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Setup MSVC dev environment
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
