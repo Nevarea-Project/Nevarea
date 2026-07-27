@@ -18,5 +18,5 @@ jobs:
           cmake --install windows-ninja --config Release --prefix ../dist
       - uses: actions/upload-artifact@v4
         with: { name: nevarea-windows-x64, path: dist/ }
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with: { files: dist/**, generate_release_notes: true }
