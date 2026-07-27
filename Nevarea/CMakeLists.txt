@@ -56,7 +56,8 @@ target_include_directories(Nevarea
 target_include_directories(Nevarea SYSTEM PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/vendor/volk/)
 
-target_link_libraries(Nevarea PRIVATE Vulkan::Headers Vulkan::UtilityHeaders VulkanMemoryAllocator)
+target_link_libraries(Nevarea PRIVATE
+  Vulkan::Headers Vulkan::UtilityHeaders VulkanMemoryAllocator)
 
 set_target_properties(Nevarea PROPERTIES
   CXX_STANDARD 23
@@ -111,4 +112,11 @@ install(FILES
 if(NEVAREA_BUILD_DYNAMIC AND MSVC)
   install(FILES $<TARGET_PDB_FILE:Nevarea>
     DESTINATION ${CMAKE_INSTALL_BINDIR} OPTIONAL)
+endif()
+
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+  file(CREATE_LINK
+    "${CMAKE_BINARY_DIR}/compile_commands.json"
+    "${NEVAREA_ROOT}/compile_commands.json"
+    SYMBOLIC COPY_ON_ERROR)
 endif()

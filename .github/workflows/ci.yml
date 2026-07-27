@@ -6,7 +6,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: windows-latest, preset: windows-ninja }
+          - { os: windows-latest, preset: windows-ninja, config: Debug }
+          - { os: windows-latest, preset: windows-ninja, config: Release }
           # TODO: enable once the platform seam lands (linux/mac compile) - see WindowSystem.cpp
           #- { os: ubuntu-latest, preset: linux-gcc }
           #- { os: ubuntu-latest, preset: linux-clang }

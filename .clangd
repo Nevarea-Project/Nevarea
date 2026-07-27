@@ -1,0 +1,9 @@
+CompileFlags:
+  CompilationDatabase: .
+  Remove: [/Yu*, /Yc*, /Fp*]
+
+Diagnostics:
+  UnusedIncludes: None
+
+Index:
+  Background: Build

@@ -48,6 +48,7 @@
   "buildPresets": [
     { "name": "windows-msvc", "configurePreset": "windows-msvc", "configuration": "Release" },
     { "name": "windows-ninja", "configurePreset": "windows-ninja", "configuration": "Release" },
+    { "name": "windows-ninja-debug", "configurePreset": "windows-ninja", "configuration": "Debug" },
     { "name": "windows-clang-cl", "configurePreset": "windows-clang-cl", "configuration": "Release" },
     { "name": "windows-mingw", "configurePreset": "windows-mingw", "configuration": "Release" },
     { "name": "linux-gcc", "configurePreset": "linux-gcc", "configuration": "Release" },

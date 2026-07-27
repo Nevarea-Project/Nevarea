@@ -9,7 +9,7 @@ namespace Nevarea {
         VkPhysicalDevice physical_device;
         VkDevice device;
         VkQueue graphics_queue;
-        uint32_t graphics_family;
+        u32 graphics_family;
     };
 
     struct VulkanImage {
@@ -17,7 +17,7 @@ namespace Nevarea {
         VkImageView image_view;
         VkFormat format;
         VkExtent2D extent;
-        uint32_t mips, layers;
+        u32 mips, layers;
         VkImageLayout current_layout;
         VkImageUsageFlags usage;
     };
@@ -30,8 +30,8 @@ namespace Nevarea {
 
     struct VulkanSwapchainInfo {
         VkFormat color_format;
-        uint32_t image_count;
-        uint32_t min_image_count;
+        u32 image_count;
+        u32 min_image_count;
     };
 
     NEVAREA_API VulkanHandles renderer_vk_context(RenderContext context);

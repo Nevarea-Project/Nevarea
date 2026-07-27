@@ -5,11 +5,11 @@
 #include <cstdint>
 
 namespace Nevarea {
-	enum class WindowHandle : uint32_t { INVALID = 0 };
+	enum class WindowHandle : u32 { INVALID = 0 };
 
 	struct NvWinExtent {
-		uint32_t width;
-		uint32_t height;
+		u32 width;
+		u32 height;
 	};
 
 	NEVAREA_API WindowHandle window_create(void* native_handle);

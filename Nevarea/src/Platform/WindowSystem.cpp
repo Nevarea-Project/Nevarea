@@ -5,8 +5,8 @@
 namespace Nevarea {
 	namespace {
 		struct WindowState {
-			uint32_t width;
-			uint32_t height;
+			u32 width;
+			u32 height;
 			bool is_active;
 
 			#ifdef NEVAREA_PLATFORM_WINDOWS
@@ -15,11 +15,11 @@ namespace Nevarea {
 			#endif
 		};
 
-		constexpr uint32_t MAX_WINDOWS = 16;
+		constexpr u32 MAX_WINDOWS = 16;
 		WindowState g_windows[MAX_WINDOWS];
 
 		WindowState* resolve(WindowHandle window) {
-			uint32_t value = static_cast<uint32_t>(window);
+			u32 value = static_cast<u32>(window);
 
 			NEVAREA_ASSERT(value != 0 && value <= MAX_WINDOWS, "WINDOW SYSTEM", "Invalid WindowHandle!");
 			WindowState* window_state = &g_windows[value - 1];
@@ -30,7 +30,7 @@ namespace Nevarea {
 	}
 
 	WindowHandle window_create(void* native_handle) {
-		for (uint32_t i = 0; i < MAX_WINDOWS; ++i) {
+		for (u32 i = 0; i < MAX_WINDOWS; ++i) {
 			if (g_windows[i].is_active) continue;
 
 			WindowState& window_state = g_windows[i];
