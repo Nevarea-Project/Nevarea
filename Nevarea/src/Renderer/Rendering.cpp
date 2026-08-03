@@ -5,6 +5,7 @@
 #include "Renderer/Vulkan/VulkanResourceManager.hpp"
 #include "Renderer/Vulkan/VulkanSwapchain.hpp"
 #include "Renderer/Vulkan/VulkanTranslate.hpp"
+#include "lib/Core.hpp"
 #include "lib/Logging.hpp"
 #include "lib/WindowSystem.hpp"
 #include "Core/n_pch.hpp"
@@ -121,7 +122,9 @@ namespace Nevarea {
 			case RenderingAPI::VULKAN: {
 			    auto& vk = render_state->vulkan;
 
-    			Renderer::vulkan_context_init(vk, window);
+    			NvResult result = Renderer::vulkan_context_init(vk, window);
+                NV_VALIDATE(result == NvResult::SUCCESS, SwapchainDescription{}, "renderer_hook_window: vk init failed");
+
                 Renderer::query_swapchain_support(vk.device.physical_device, vk.surface);
 
 			    SwapchainDescription want = create_swapchain_data(context, swapchain_description);
@@ -466,15 +469,15 @@ namespace Nevarea {
         }
     }
 
-	void renderer_dispatch_compute(RenderContext context, Pipeline pipeline, u32 groups_x, u32 groups_y, u32 groups_z, const void* push, size_t size) {
+	void renderer_dispatch_compute(RenderContext context, Pipeline pipeline, u32 groups_x, u32 groups_y, u32 groups_z, const void* push, usize size) {
 		RenderState* render_state = resolve(context);
 
 		switch (render_state->api) {
     		case RenderingAPI::VULKAN: {
                 Renderer::ComputeDispatch dispatch{ pipeline, groups_x, groups_y, groups_z };
-                NEVAREA_ASSERT(size <= sizeof(dispatch.push_data), "RENDERER", "push data exceeds 128 bytes");
+                NV_VALIDATE(size <= NEVAREA_MAX_PUSH_CONSTANTS_SIZE, void(), "push data of size: %u exceeds %d bytes", size, NEVAREA_MAX_PUSH_CONSTANTS_SIZE);
                 memcpy(dispatch.push_data, push, size);
-                dispatch.push_size = (u32)size;
+                dispatch.push_size = static_cast<u32>(size);
                 render_state->vulkan.compute_dispatches.push_back(dispatch);
 
    			    break;

@@ -69,7 +69,7 @@ namespace Nevarea::Renderer {
 		std::vector<ComputeDispatch> compute_dispatches;
 	};
 
-	void vulkan_context_init(VulkanContext& context, WindowHandle window);
+	NvResult vulkan_context_init(VulkanContext& context, WindowHandle window);
 	void vulkan_context_draw(VulkanContext& context);
 	void vulkan_context_destroy(VulkanContext& context);
 

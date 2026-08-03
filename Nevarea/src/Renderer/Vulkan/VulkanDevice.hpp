@@ -57,9 +57,9 @@ namespace Nevarea::Renderer {
 
 	QueueFamilyIndices find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface);
 
-	void vulkan_device_init(DeviceContext& device_context, VkInstance instance, VkSurfaceKHR surface);
+	NvResult vulkan_device_init(DeviceContext& device_context, VkInstance instance, VkSurfaceKHR surface);
 	void vulkan_device_destroy(DeviceContext* device_context);
 
 	void vulkan_device_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, DeviceContext* device_context);
-	void vulkan_device_create_logical_device(VkSurfaceKHR surface, DeviceContext* device_context);
+	NvResult vulkan_device_create_logical_device(VkSurfaceKHR surface, DeviceContext* device_context);
 }

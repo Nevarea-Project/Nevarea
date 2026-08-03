@@ -125,7 +125,7 @@ namespace Nevarea::Renderer {
 		VK_ASSERT(vmaCreateAllocator(&create_info, &allocator));
 	}
 
-	void vulkan_context_init(VulkanContext& context, WindowHandle window) {
+	NvResult vulkan_context_init(VulkanContext& context, WindowHandle window) {
 		context.window = window;
 
 		VK_ASSERT(volkInitialize());
@@ -134,10 +134,13 @@ namespace Nevarea::Renderer {
 		volkLoadInstance(context.instance);
 		vulkan_context_debug_messenger(context.instance, context.debug_messenger);
 		vulkan_context_create_surface(context.window, context.instance, context.surface.surface);
-		vulkan_device_init(context.device, context.instance, context.surface.surface);
+		NvResult result = vulkan_device_init(context.device, context.instance, context.surface.surface);
+		if (result != NvResult::SUCCESS) return result;
 		volkLoadDevice(context.device.device);
 		vulkan_context_create_allocator(context.instance, context.device.physical_device, context.device.device, context.allocator, context.device.capabilities.memory_priority);
 		vulkan_resources_init(context.resource_manager, context.allocator, context.device);
+
+		return NvResult::SUCCESS;
 	}
 
 	static void transition_tracked(VkCommandBuffer cmd, AllocatedImage& img, VkImageLayout new_layout,
@@ -367,7 +370,7 @@ namespace Nevarea::Renderer {
         item.push_size = (u32)cmd.push_size;
 
         if (cmd.push && cmd.push_size) {
-            NEVAREA_ASSERT(cmd.push_size <= NEVAREA_MAX_PUSH_CONSTANTS_SIZE, "RENDERER", "push too large");
+            NV_VALIDATE(cmd.push_size <= NEVAREA_MAX_PUSH_CONSTANTS_SIZE, void(), "push: %u is larger than %d", cmd.push_size, NEVAREA_MAX_PUSH_CONSTANTS_SIZE);
             memcpy(item.push_data, cmd.push, cmd.push_size);
         }
 

@@ -215,11 +215,14 @@ namespace Nevarea::Renderer {
 		return best_device;
 	}
 
-	void vulkan_device_init(DeviceContext& device_context, VkInstance instance, VkSurfaceKHR surface)
+	NvResult vulkan_device_init(DeviceContext& device_context, VkInstance instance, VkSurfaceKHR surface)
 	{
 		vulkan_device_pick_physical_device(instance, surface, &device_context);
+        NV_VALIDATE(device_context.physical_device != VK_NULL_HANDLE, NvResult::FEATURE_NOT_PRESENT, "no compatible physical device found");
 		query_capabilities(device_context);
 		vulkan_device_create_logical_device(surface, &device_context);
+
+		return NvResult::SUCCESS;
 	}
 
 	void vulkan_device_destroy(DeviceContext* device_context)
@@ -245,7 +248,7 @@ namespace Nevarea::Renderer {
 		NEVAREA_LOG(LogLevel::INFO, "Physical Device Chosen: %s", device_properties.deviceName);
 	}
 
-	void vulkan_device_create_logical_device(VkSurfaceKHR surface, DeviceContext* device_context)
+	NvResult vulkan_device_create_logical_device(VkSurfaceKHR surface, DeviceContext* device_context)
 	{
 		QueueFamilyIndices indices = find_queue_families(device_context->physical_device, surface);
 
@@ -384,11 +387,12 @@ namespace Nevarea::Renderer {
 
 		VkResult result = vkCreateDevice(device_context->physical_device, &create_info, nullptr, &device_context->device);
 		if (result != VK_SUCCESS && device_context->user_feature_chain) {
+		    NEVAREA_LOG(LogLevel::WARN, "device creation failed with requested feature chain (%s); retrying WITHOUT caller-requested features", string_VkResult(result));
             tail->pNext = nullptr;
             result = vkCreateDevice(device_context->physical_device, &create_info, nullptr, &device_context->device);
         }
 
-		VK_ASSERT(result);
+		NV_CHECK_VK(result);
 
 		device_context->graphics_family_index = indices.graphics_family.value();
 		device_context->compute_family_index = indices.compute_family.value();
@@ -405,5 +409,7 @@ namespace Nevarea::Renderer {
 		VK_NAME(device_context->device, VK_OBJECT_TYPE_QUEUE, device_context->present_queue, "present_queue");
 		VK_NAME(device_context->device, VK_OBJECT_TYPE_QUEUE, device_context->compute_queue, "compute_queue");
 		VK_NAME(device_context->device, VK_OBJECT_TYPE_QUEUE, device_context->transfer_queue, "transfer_queue");
+
+		return NvResult::SUCCESS;
 	}
 }

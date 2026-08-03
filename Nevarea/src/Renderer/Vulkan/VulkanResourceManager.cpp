@@ -671,9 +671,9 @@ namespace Nevarea::Renderer {
 		NEVAREA_ASSERT((img.usage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) != 0,
             "RESOURCE MANAGER", "upload_image: image must be created with ImageUsage::TRANSFER_DST!");
 
-		[[maybe_unused]] usize expected = format_size(img.format, img.extent.width, img.extent.height);
+		usize expected = format_size(img.format, img.extent.width, img.extent.height);
 
-		NEVAREA_ASSERT(size >= expected, "RESOURCE MANAGER", "upload_image: pixel data smaller than image requires!");
+		NV_VALIDATE(size >= expected, void(), "upload_image: pixel data (%u) smaller than image requires: %u", size, expected);
 
 		VkBufferCreateInfo buf_info{};
 		buf_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
