@@ -8,3 +8,7 @@
 /Build/linux-gcc/
 /Build/linux-clang/
 /dist/
+
+/NEVAREA_PROGRESS.md
+/.cache/
+/compile_commands.json

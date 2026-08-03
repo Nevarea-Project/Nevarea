@@ -14,10 +14,10 @@
 namespace Nevarea::Renderer {
     struct DrawItem {
         BufferHandle index_buffer;
-        uint32_t count, first, instance_count;
-        int32_t vertex_offset;
-        uint8_t push_data[NEVAREA_MAX_PUSH_CONSTANTS_SIZE];
-        uint32_t push_size;
+        u32 count, first, instance_count;
+        i32 vertex_offset;
+        u8 push_data[NEVAREA_MAX_PUSH_CONSTANTS_SIZE];
+        u32 push_size;
     };
 
 	struct DrawBucket {
@@ -27,10 +27,10 @@ namespace Nevarea::Renderer {
 
 	struct ComputeDispatch {
 		Pipeline pipeline;
-		uint32_t groups_x, groups_y, groups_z;
+		u32 groups_x, groups_y, groups_z;
 
-		uint8_t push_data[NEVAREA_MAX_PUSH_CONSTANTS_SIZE];
-		uint32_t push_size;
+		u8 push_data[NEVAREA_MAX_PUSH_CONSTANTS_SIZE];
+		u32 push_size;
 	};
 
 	struct PassData {
@@ -43,7 +43,7 @@ namespace Nevarea::Renderer {
 	struct InteropRecord {
 	    void (*fn)(VkCommandBuffer cmd, void* user);
 		void* user;
-		uint32_t at;
+		u32 at;
 		bool in_scope;
 	};
 

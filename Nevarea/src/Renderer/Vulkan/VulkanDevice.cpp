@@ -1,19 +1,18 @@
 #include "VulkanDevice.hpp"
 #include "VulkanSpec.hpp"
-#include "VulkanSwapchain.hpp"
 #include "VulkanDebug.hpp"
 
 namespace Nevarea::Renderer {
 	QueueFamilyIndices find_queue_families(VkPhysicalDevice device, VkSurfaceKHR surface) {
 		QueueFamilyIndices indices;
 
-		uint32_t queue_family_count = 0;
+		u32 queue_family_count = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
 
 		std::vector<VkQueueFamilyProperties> families(queue_family_count);
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, families.data());
 
-		for (uint32_t i = 0; i < queue_family_count; i++) {
+		for (u32 i = 0; i < queue_family_count; i++) {
 		    VkQueueFlags flags = families[i].queueFlags;
 
 			if ((flags & VK_QUEUE_GRAPHICS_BIT) && !indices.graphics_family.has_value())
@@ -76,11 +75,11 @@ namespace Nevarea::Renderer {
 
 	static bool is_swapchain_adequate(VkPhysicalDevice device, VkSurfaceKHR surface)
 	{
-		uint32_t format_count = 0;
+		u32 format_count = 0;
 		if (vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &format_count, nullptr) != VK_SUCCESS || format_count == 0)
 			return false;
 
-		uint32_t present_mode_count = 0;
+		u32 present_mode_count = 0;
 		if (vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &present_mode_count, nullptr) != VK_SUCCESS || present_mode_count == 0)
 			return false;
 
@@ -167,14 +166,14 @@ namespace Nevarea::Renderer {
 		device_context.capabilities.shader_module_identifier = has(VK_EXT_SHADER_MODULE_IDENTIFIER_EXTENSION_NAME);
 	}
 
-	static uint32_t score_device(VkPhysicalDevice device) {
+	static u32 score_device(VkPhysicalDevice device) {
 		VkPhysicalDeviceProperties device_properties;
 		vkGetPhysicalDeviceProperties(device, &device_properties);
 
 		VkPhysicalDeviceMemoryProperties memory_properties;
 		vkGetPhysicalDeviceMemoryProperties(device, &memory_properties);
 
-		uint32_t score = 0;
+		u32 score = 0;
 
 		switch (device_properties.deviceType) {
 			case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU: score += 10000; break;
@@ -186,13 +185,13 @@ namespace Nevarea::Renderer {
 
 		VkDeviceSize vram = 0;
 
-		for (uint32_t i = 0; i < memory_properties.memoryHeapCount; ++i) {
+		for (u32 i = 0; i < memory_properties.memoryHeapCount; ++i) {
 			if (memory_properties.memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT)
 				vram += memory_properties.memoryHeaps[i].size;
 		}
 
 		score += device_properties.limits.maxImageDimension2D;
-		score += static_cast<uint32_t>(vram / (1024 * 1024));
+		score += static_cast<u32>(vram / (1024 * 1024));
 
 		return score;
 	}
@@ -200,12 +199,12 @@ namespace Nevarea::Renderer {
 	static VkPhysicalDevice pick_best_compatible_device(std::vector<VkPhysicalDevice> physical_devices, VkSurfaceKHR surface)
 	{
 		VkPhysicalDevice best_device = VK_NULL_HANDLE;
-		uint32_t best_score = 0;
+		u32 best_score = 0;
 
 		for (VkPhysicalDevice device : physical_devices) {
 			if (!is_device_compatible(device, surface)) continue;
 
-			uint32_t score = score_device(device);
+			u32 score = score_device(device);
 			if (score > best_score) {
 				best_score = score;
 				best_device = device;
@@ -230,7 +229,7 @@ namespace Nevarea::Renderer {
 
 	void vulkan_device_pick_physical_device(VkInstance instance, VkSurfaceKHR surface, DeviceContext* device_context)
 	{
-		uint32_t physical_device_count = 0;
+		u32 physical_device_count = 0;
 		VK_CHECK(vkEnumeratePhysicalDevices(instance, &physical_device_count, nullptr));
 
 		std::vector<VkPhysicalDevice> physical_devices(physical_device_count);
@@ -251,7 +250,7 @@ namespace Nevarea::Renderer {
 		QueueFamilyIndices indices = find_queue_families(device_context->physical_device, surface);
 
 		std::vector<VkDeviceQueueCreateInfo> queue_create_infos;
-		std::set<uint32_t> unique_queue_families = {
+		std::set<u32> unique_queue_families = {
 			indices.graphics_family.value(),
 			indices.present_family.value(),
 			indices.compute_family.value(),
@@ -259,7 +258,7 @@ namespace Nevarea::Renderer {
 		};
 
 		float queue_priority = 1.0f;
-		for (uint32_t queue_family : unique_queue_families) {
+		for (u32 queue_family : unique_queue_families) {
 			VkDeviceQueueCreateInfo queue_create_info{};
 			queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 			queue_create_info.queueFamilyIndex = queue_family;
@@ -375,10 +374,10 @@ namespace Nevarea::Renderer {
 		VkDeviceCreateInfo create_info{};
 		create_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 		create_info.pNext = &features2;
-		create_info.queueCreateInfoCount = static_cast<uint32_t>(queue_create_infos.size());
+		create_info.queueCreateInfoCount = static_cast<u32>(queue_create_infos.size());
 		create_info.pQueueCreateInfos = queue_create_infos.data();
 		create_info.pEnabledFeatures = nullptr;
-		create_info.enabledExtensionCount   = (uint32_t)device_context->enabled_extensions.size();
+		create_info.enabledExtensionCount   = (u32)device_context->enabled_extensions.size();
 		create_info.ppEnabledExtensionNames = device_context->enabled_extensions.data();
 		create_info.enabledLayerCount = 0;
 		create_info.ppEnabledLayerNames = nullptr;

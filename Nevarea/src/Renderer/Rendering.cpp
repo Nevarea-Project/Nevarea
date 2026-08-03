@@ -7,17 +7,16 @@
 #include "Renderer/Vulkan/VulkanTranslate.hpp"
 #include "lib/Logging.hpp"
 #include "lib/WindowSystem.hpp"
-#include <cstdio>
 #include "Core/n_pch.hpp"
 
 namespace Nevarea {
 	namespace {
-		constexpr uint32_t MAX_RENDERERS = 4;
+		constexpr u32 MAX_RENDERERS = 4;
 		RenderState g_renderers[MAX_RENDERERS];
 	}
 
 	RenderState* resolve(RenderContext context) {
-		uint32_t id = static_cast<uint32_t>(context);
+		u32 id = static_cast<u32>(context);
 		NEVAREA_ASSERT(id != 0 && id <= MAX_RENDERERS, "RENDERER", "Invalid RenderContext!");
 
 		RenderState* render_state = &g_renderers[id - 1];
@@ -28,7 +27,7 @@ namespace Nevarea {
 
 	RenderContext renderer_create(RenderingAPI api)
 	{
-		for (uint32_t i = 0; i < MAX_RENDERERS; ++i) {
+		for (u32 i = 0; i < MAX_RENDERERS; ++i) {
 			if (g_renderers[i].is_active) continue;
 
 			RenderState& render_state = g_renderers[i];
@@ -88,7 +87,7 @@ namespace Nevarea {
                     want.present_mode = PresentMode::VSYNC;
                 }
 
-                uint32_t count = want.image_count ? want.image_count : vk.surface.capabilities.minImageCount + 1;
+                u32 count = want.image_count ? want.image_count : vk.surface.capabilities.minImageCount + 1;
                 count = (std::max)(count, vk.surface.capabilities.minImageCount);
 
                 if (vk.surface.capabilities.maxImageCount > 0)
@@ -111,7 +110,7 @@ namespace Nevarea {
             }
         }
 
-        return {};
+        return want;
 	}
 
 	SwapchainDescription renderer_hook_window(RenderContext context, WindowHandle window, const SwapchainDescription& swapchain_description)
@@ -128,7 +127,7 @@ namespace Nevarea {
 			    SwapchainDescription want = create_swapchain_data(context, swapchain_description);
 
     			Renderer::vulkan_swapchain_init(vk.swapchain, vk.device, vk.surface, vk.window);
-    			Renderer::vulkan_frame_sync_init(vk.frame_sync, vk.device, static_cast<uint32_t>(vk.swapchain.images.size()));
+    			Renderer::vulkan_frame_sync_init(vk.frame_sync, vk.device, static_cast<u32>(vk.swapchain.images.size()));
 				return want;
 			}
 			case RenderingAPI::NONE:
@@ -196,7 +195,7 @@ namespace Nevarea {
         }
 	}
 
-	void renderer_request_device_extensions(RenderContext context, const char* const* names, uint32_t count) {
+	void renderer_request_device_extensions(RenderContext context, const char* const* names, u32 count) {
         RenderState* render_state = resolve(context);
 
         switch (render_state->api) {
@@ -218,7 +217,7 @@ namespace Nevarea {
             case RenderingAPI::VULKAN: {
                 VkPhysicalDevice device = render_state->vulkan.device.physical_device;
 
-                uint32_t count = 0;
+                u32 count = 0;
                 vkEnumerateDeviceExtensionProperties(device, nullptr, &count, nullptr);
                 std::vector<VkExtensionProperties> props(count);
                 vkEnumerateDeviceExtensionProperties(device, nullptr, &count, props.data());
@@ -275,7 +274,7 @@ namespace Nevarea {
 				auto& vk = render_state->vulkan;
                 SwapchainDescription want = create_swapchain_data(context, description);
                 Renderer::recreate_swapchain(vk.swapchain, vk.device, vk.surface, vk.window);
-				Renderer::vulkan_frame_sync_ensure_present_semaphores(vk.frame_sync, vk.device.device, static_cast<uint32_t>(vk.swapchain.images.size()));
+				Renderer::vulkan_frame_sync_ensure_present_semaphores(vk.frame_sync, vk.device.device, static_cast<u32>(vk.swapchain.images.size()));
 				return want;
 			}
 
@@ -467,7 +466,7 @@ namespace Nevarea {
         }
     }
 
-	void renderer_dispatch_compute(RenderContext context, Pipeline pipeline, uint32_t groups_x, uint32_t groups_y, uint32_t groups_z, const void* push, size_t size) {
+	void renderer_dispatch_compute(RenderContext context, Pipeline pipeline, u32 groups_x, u32 groups_y, u32 groups_z, const void* push, size_t size) {
 		RenderState* render_state = resolve(context);
 
 		switch (render_state->api) {
@@ -475,7 +474,7 @@ namespace Nevarea {
                 Renderer::ComputeDispatch dispatch{ pipeline, groups_x, groups_y, groups_z };
                 NEVAREA_ASSERT(size <= sizeof(dispatch.push_data), "RENDERER", "push data exceeds 128 bytes");
                 memcpy(dispatch.push_data, push, size);
-                dispatch.push_size = (uint32_t)size;
+                dispatch.push_size = (u32)size;
                 render_state->vulkan.compute_dispatches.push_back(dispatch);
 
    			    break;

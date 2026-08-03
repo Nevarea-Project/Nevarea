@@ -22,7 +22,7 @@ namespace Nevarea::Renderer {
 		app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		app_info.apiVersion = NEVAREA_VULKAN_VERSION;
 
-		uint32_t extension_count = 0;
+		u32 extension_count = 0;
 		VK_CHECK(vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, nullptr));
 
 		std::vector<VkExtensionProperties> avaliable_extensions(extension_count);
@@ -53,11 +53,11 @@ namespace Nevarea::Renderer {
 		instance_create_info.pApplicationInfo = &app_info;
 		instance_create_info.enabledLayerCount = 0;
 		instance_create_info.ppEnabledLayerNames = nullptr;
-		instance_create_info.enabledExtensionCount = static_cast<uint32_t>(enabled_extensions.size());
+		instance_create_info.enabledExtensionCount = static_cast<u32>(enabled_extensions.size());
 		instance_create_info.ppEnabledExtensionNames = enabled_extensions.data();
 
 		#ifdef NEVAREA_DEBUG
-			uint32_t available_count = 0;
+			u32 available_count = 0;
 			VK_CHECK(vkEnumerateInstanceLayerProperties(&available_count, nullptr));
 			std::vector<VkLayerProperties> available_layers(available_count);
 			VK_CHECK(vkEnumerateInstanceLayerProperties(&available_count, available_layers.data()));
@@ -72,7 +72,7 @@ namespace Nevarea::Renderer {
 				else NEVAREA_LOG(LogLevel::WARN, "validation layer: '%s' is not avaliable, skipping\n", requested);
 			}
 
-			instance_create_info.enabledLayerCount = static_cast<uint32_t>(enabled_layers.size());
+			instance_create_info.enabledLayerCount = static_cast<u32>(enabled_layers.size());
 			instance_create_info.ppEnabledLayerNames = enabled_layers.data();
 			if (!enabled_layers.empty())
 				instance_create_info.pNext = &debug_create_info;
@@ -144,7 +144,7 @@ namespace Nevarea::Renderer {
 		VkPipelineStageFlags2 src_stage, VkAccessFlags2 src_access,
 		VkPipelineStageFlags2 dst_stage, VkAccessFlags2 dst_access)
 	{
-	    VkImageAspectFlags aspect = k_format_info[(uint32_t)img.format].aspect;
+	    VkImageAspectFlags aspect = k_format_info[(u32)img.format].aspect;
 		transition_image(cmd, img.image, img.current_layout, new_layout, src_stage, src_access, dst_stage, dst_access, aspect);
 		img.current_layout = new_layout;
 	}
@@ -236,12 +236,12 @@ namespace Nevarea::Renderer {
 
 		bool any_present = false;
 
-		auto fire_interop = [&](uint32_t boundary) {
+		auto fire_interop = [&](u32 boundary) {
             for (InteropRecord& record : context.interop_records)
                 if (!record.in_scope && record.at == boundary) record.fn(cmd, record.user);
         };
 
-		uint32_t pass_index = 0;
+		u32 pass_index = 0;
 		fire_interop(pass_index);
 		for (PassData& pass : context.passes) {
 		    for (size_t i = 0; i < pass.color.size(); i++) {
@@ -364,7 +364,7 @@ namespace Nevarea::Renderer {
         item.first = cmd.first;
         item.vertex_offset = cmd.vertex_offset;
         item.instance_count = cmd.instance_count;
-        item.push_size = (uint32_t)cmd.push_size;
+        item.push_size = (u32)cmd.push_size;
 
         if (cmd.push && cmd.push_size) {
             NEVAREA_ASSERT(cmd.push_size <= NEVAREA_MAX_PUSH_CONSTANTS_SIZE, "RENDERER", "push too large");
@@ -384,7 +384,7 @@ namespace Nevarea::Renderer {
 	}
 
 	Pipeline vulkan_pipeline_add(VulkanContext &context, const PipelineContext &pipeline) {
-	    uint32_t index = context.pipelines.add(pipeline);
+	    u32 index = context.pipelines.add(pipeline);
 		return { index, context.pipelines.generations[index] };
 	}
 
