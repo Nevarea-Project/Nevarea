@@ -92,8 +92,20 @@ namespace Nevarea {
         enum : uint32_t { OPAQUE_GEOMETRY = 1u << 0, NO_DUPLICATE_ANY_HIT = 1u << 1 };
     }
 
+    enum class NvResult : int32_t {
+	    SUCCESS = 0,
+		INVALID_HANDLE,
+		INVALID_ARGUMENT,
+		SIZE_EXCEEDED,
+		DEVICE_LOST,
+		INITIALIZATION_FAILED,
+		FEATURE_NOT_PRESENT,
+		VK_FAILURE,
+		UNKNOWN
+	};
 
 	enum class RenderContext : uint32_t { INVALID = 0 };
+
 
 	struct Image {
 		uint32_t id = UINT32_MAX;
@@ -116,7 +128,7 @@ namespace Nevarea {
    	struct Sampler {
 	    uint32_t id = UINT32_MAX;
 		uint32_t generation = 0;
-		bool is_valid() const { return id != UINT32_MAX; };
+		bool is_valid() const { return id != UINT32_MAX; }
 	};
 
 	struct AccelerationStructure {

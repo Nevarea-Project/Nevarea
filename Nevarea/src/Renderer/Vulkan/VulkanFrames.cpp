@@ -1,5 +1,6 @@
 #include "VulkanFrames.hpp"
 #include "Core/n_pch.hpp"
+#include "lib/Core.hpp"
 #include "lib/Rendering.hpp"
 #include "VulkanTranslate.hpp"
 
@@ -52,10 +53,9 @@ namespace Nevarea::Renderer {
 	void begin_rendering(VkCommandBuffer cmd, const PassData& pass, SwapchainContext& swapchain, ResourceManager& resources) {
 		VkRenderingAttachmentInfo color_attachments[NEVAREA_MAX_COLOR_ATTACHMENTS]{};
 
-		NEVAREA_ASSERT(pass.color.size() <= NEVAREA_MAX_COLOR_ATTACHMENTS, "VULKAN FRAMES",
-		    "the maximum amount of color attachments has been exceeded!");
+		NV_VALIDATE(pass.color.size() <= NEVAREA_MAX_COLOR_ATTACHMENTS, void(), "amount of color attachments (%u) must not exceed %d", pass.color.size(), NEVAREA_MAX_COLOR_ATTACHMENTS);
 
-		for (size_t i = 0; i < pass.color.size(); i++) {
+		for (usize i = 0; i < pass.color.size(); i++) {
 		    const ColorAttachment& att = pass.color[i];
 
             VkRenderingAttachmentInfo color_attachment{};

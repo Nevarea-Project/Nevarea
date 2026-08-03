@@ -94,14 +94,16 @@ namespace Nevarea::Renderer {
             return index;
 		}
 
-        T& get(u32 index, [[maybe_unused]] u32 gen) {
-            NEVAREA_ASSERT(index < data.size() && gen == generations[index], "POOL", "stale/oob handle");
+        T& get(u32 index, u32 gen) {
+            static T s_dead{};
+            NV_VALIDATE(alive(index, gen), s_dead, "stale/oob handle (index=%u gen=%u)", index, gen);
             return data[index];
         }
 
-        const T& get(u32 index, [[maybe_unused]] u32 gen) const {
-			NEVAREA_ASSERT(index < data.size() && gen == generations[index], "POOL", "stale/oob handle");
-			return data[index];
+        const T& get(u32 index, u32 gen) const {
+            static T s_dead{};
+            NV_VALIDATE(alive(index, gen), s_dead, "stale/oob handle (index=%u gen=%u)", index, gen);
+            return data[index];
 		}
 
         void remove(u32 index) {

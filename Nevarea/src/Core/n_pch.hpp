@@ -34,6 +34,7 @@ namespace Nevarea {
 }
 
 #include "lib/Core.hpp"
+#include "Validate.hpp"
 #include "LogInternal.hpp"
 
 #include <volk.h>
