@@ -43,8 +43,6 @@ namespace Nevarea::Renderer {
 		debug_create_info.pUserData = nullptr;
 	}
 
-	void vulkan_debug_init(VkDevice device) {}
-
 	void vulkan_set_debug_name(VkDevice device, VkObjectType type, uint64_t handle, const char* name) {
 		VkDebugUtilsObjectNameInfoEXT info{};
 		info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;

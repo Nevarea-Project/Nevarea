@@ -14,8 +14,8 @@ namespace Nevarea::Renderer {
 	#define NEVAREA_ACCEL_SIZE 64
 
 	struct ImageHandle {
-		uint32_t index = UINT32_MAX;
-		uint32_t generation = 0;
+		u32 index = UINT32_MAX;
+		u32 generation = 0;
 		bool is_valid() const { return index != UINT32_MAX; }
 	};
 
@@ -31,22 +31,22 @@ namespace Nevarea::Renderer {
 	};
 
 	struct BufferHandle {
-		uint32_t index = UINT32_MAX;
-		uint32_t generation = 0;
+		u32 index = UINT32_MAX;
+		u32 generation = 0;
 		bool is_valid() const { return index != UINT32_MAX; }
 	};
 
 	struct AccelStructHandle {
-        uint32_t index = UINT32_MAX;
-        uint32_t generation = 0;
+        u32 index = UINT32_MAX;
+        u32 generation = 0;
         bool is_valid() const { return index != UINT32_MAX; }
     };
 
 	struct FormatInfo {
 		VkFormat vk;
-		uint32_t block_bytes;
-		uint32_t block_width;
-		uint32_t block_height;
+		u32 block_bytes;
+		u32 block_width;
+		u32 block_height;
 		VkImageAspectFlags aspect;
 	};
 
@@ -84,33 +84,33 @@ namespace Nevarea::Renderer {
 	template<class T>
 	struct Pool {
 	    std::vector<T> data;
-		std::vector<uint32_t> generations;
-		std::vector<uint32_t> free_list;
+		std::vector<u32> generations;
+		std::vector<u32> free_list;
 
-		uint32_t add(const T& item) {
-            uint32_t index;
+		u32 add(const T& item) {
+            u32 index;
             if (!free_list.empty()) { index = free_list.back(); free_list.pop_back(); data[index] = item; }
-            else { index = (uint32_t)data.size(); data.push_back(item); generations.push_back(0); }
+            else { index = static_cast<u32>(data.size()); data.push_back(item); generations.push_back(0); }
             return index;
 		}
 
-        T& get(uint32_t index, uint32_t gen) {
+        T& get(u32 index, [[maybe_unused]] u32 gen) {
             NEVAREA_ASSERT(index < data.size() && gen == generations[index], "POOL", "stale/oob handle");
             return data[index];
         }
 
-        const T& get(uint32_t index, uint32_t gen) const {
+        const T& get(u32 index, [[maybe_unused]] u32 gen) const {
 			NEVAREA_ASSERT(index < data.size() && gen == generations[index], "POOL", "stale/oob handle");
 			return data[index];
 		}
 
-        void remove(uint32_t index) {
+        void remove(u32 index) {
             data[index] = T{};
             generations[index]++;
             free_list.push_back(index);
         }
 
-        bool alive(uint32_t index, uint32_t gen) const { return index < data.size() && gen == generations[index]; }
+        bool alive(u32 index, u32 gen) const { return index < data.size() && gen == generations[index]; }
 	};
 
 	struct BufferData {
@@ -126,9 +126,9 @@ namespace Nevarea::Renderer {
 	};
 
 	struct BindlessSlot {
-	    uint32_t binding;
+	    u32 binding;
 		VkDescriptorType type;
-		uint32_t count;
+		u32 count;
 		const char* required_extension;
 		bool update_after_bind;
 	};
@@ -165,8 +165,8 @@ namespace Nevarea::Renderer {
 		VkQueue upload_queue;
 
 		VkQueue transfer_queue;
-		uint32_t transfer_family;
-		uint32_t graphics_family;
+		u32 transfer_family;
+		u32 graphics_family;
 
 		VkCommandPool transfer_pool;
 		VkSemaphore transfer_timeline;
@@ -178,7 +178,7 @@ namespace Nevarea::Renderer {
 		VkDevice device;
 		VkPhysicalDevice physical_device;
 
-		uint32_t scratch_alignment = 256;
+		u32 scratch_alignment = 256;
 	};
 
 	VkFormat to_vk_format(Format format);

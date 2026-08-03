@@ -10,13 +10,20 @@ include(CMakePackageConfigHelpers)
 
 FetchContent_Declare(VulkanHeaders
   GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Headers.git
-  GIT_TAG v1.4.350)
+  GIT_TAG v1.4.350
+  SYSTEM)
 FetchContent_MakeAvailable(VulkanHeaders)
 
 FetchContent_Declare(VulkanUtilityLibraries
   GIT_REPOSITORY https://github.com/KhronosGroup/Vulkan-Utility-Libraries.git
-  GIT_TAG v1.4.350)
+  GIT_TAG v1.4.350
+  SYSTEM)
 FetchContent_MakeAvailable(VulkanUtilityLibraries)
+
+if(TARGET VulkanSafeStruct)
+  target_compile_options(VulkanSafeStruct PRIVATE
+    $<IF:$<CXX_COMPILER_ID:MSVC>,/w,-w>)
+endif()
 
 add_library(VulkanMemoryAllocator INTERFACE)
 target_include_directories(VulkanMemoryAllocator SYSTEM INTERFACE
@@ -85,7 +92,8 @@ endif()
 if(MSVC)
   target_compile_options(Nevarea PRIVATE /W4 /permissive- /FS)
 else()
-  target_compile_options(Nevarea PRIVATE -Wall -Wextra -pedantic)
+  target_compile_options(Nevarea PRIVATE
+    -Wall -Wextra -pedantic -Wno-missing-field-initializers)
 endif()
 
 install(TARGETS Nevarea EXPORT NevareaTargets
