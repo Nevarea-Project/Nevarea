@@ -1,5 +1,6 @@
-# Convert LF to CRLF on windows on checkout and convert back before submitting to the repository
-* text=auto
+# Store LF in the repo AND check out LF in the working tree on every platform
+# eol=lf overrides core.autocrlf, so a machine with autocrlf=true won't flip files to CRLF
+* text=auto eol=lf
 
 # Explicitly declare text files to always be normalized and converted to native line endings on checkout
 *.cpp text
