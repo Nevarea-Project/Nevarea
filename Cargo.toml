@@ -1,0 +1,44 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+
+[workspace.package]
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Nevarea-Project/Nevarea"
+authors = ["The Nevarea Project"]
+
+[workspace.dependencies]
+ash = { version = "0.38", default-features = false, features = ["loaded", "debug"] }
+raw-window-handle = "0.6.2"
+thiserror = "2.0.20"
+bitflags = "2.13.1"
+
+nevarea = { version = "0.1.0", path = "crates/nevarea" }
+
+[workspace.lints.rust]
+missing_docs = "deny"
+unsafe_op_in_unsafe_fn = "deny"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+missing_errors_doc = "deny"
+missing_panics_doc = "deny"
+missing_safety_doc = "deny"
+undocumented_unsafe_blocks = "deny"
+multiple_unsafe_ops_per_block = "deny"
+cast_possible_truncation = "deny"
+ptr_as_ptr = "deny"
+must_use_candidate = "allow"
+module_name_repetitions = "allow"
+
+[profile.dev.package."*"]
+opt-level = 2
+
+[profile.release]
+debug = "line-tables-only"
+lto = "thin"
+codegen-units = 1

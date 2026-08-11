@@ -1,0 +1,17 @@
+[package]
+name = "nevarea"
+version = "0.1.0"
+description = "A standalone, low-level RHI."
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+ash.workspace = true
+raw-window-handle.workspace = true
+thiserror.workspace = true
+bitflags.workspace = true
+
+[lints]
+workspace = true
