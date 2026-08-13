@@ -1,4 +1,4 @@
 # Nevarea
 
-A standalone, Vulkan-first RHI written in Rust.
-
+A standalone, low-level RHI written in Rust.
+Currently unstable.
