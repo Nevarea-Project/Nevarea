@@ -1,0 +1,87 @@
+name: CI
+
+# Documentation-only changes cannot break a build, so they do not spend a full matrix run.
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['**.md', 'LICENSE-*', '.gitattributes', '.editorconfig']
+  pull_request:
+    paths-ignore: ['**.md', 'LICENSE-*', '.gitattributes', '.editorconfig']
+
+# A new push to a branch cancels the run still in flight for it.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Formatting runs on nightly because rustfmt.toml uses unstable comment and import options.
+  # rust-toolchain.toml pins the repo to stable, so the +nightly override is required here: without
+  # it cargo would silently use stable rustfmt, which ignores those options and passes trivially.
+  fmt:
+    name: rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - run: cargo +nightly fmt --all --check
+
+  # Platforms with a GitHub runner. These are built, linted and tested for real.
+  test:
+    name: test ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+
+      # -D warnings promotes the workspace's warn-level lints, pedantic included, into failures.
+      # It is passed here rather than through RUSTFLAGS so a warning in a dependency cannot fail
+      # the build for something Nevarea does not control.
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace --all-features
+
+      # Builds the same documentation docs.rs will serve. Broken intra-doc links are errors, which
+      # is what keeps the documentation policy enforceable rather than aspirational.
+      - name: Docs
+        env:
+          RUSTDOCFLAGS: -D warnings
+        run: cargo doc --workspace --no-deps --all-features
+
+  # Platforms with no runner available. `cargo check` never links, so these need only the target's
+  # standard library, not a cross-linker or a platform SDK. This catches the failure that actually
+  # happens in practice: a cfg-gated path that stops compiling on a platform nobody builds locally.
+  cross:
+    name: check ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-latest }
+          - { target: riscv64gc-unknown-linux-gnu, os: ubuntu-latest }
+          - { target: x86_64-unknown-freebsd, os: ubuntu-latest }
+          - { target: aarch64-pc-windows-msvc, os: windows-latest }
+          - { target: x86_64-apple-darwin, os: macos-latest }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - run: cargo check --workspace --all-features --target ${{ matrix.target }}

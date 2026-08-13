@@ -1,11 +1,15 @@
 [package]
 name = "nevarea"
-version = "0.1.0"
+version = "0.0.0"
 description = "A standalone, low-level RHI."
 edition.workspace = true
 license.workspace = true
+readme.workspace = true
 repository.workspace = true
 authors.workspace = true
+rust-version.workspace = true
+keywords = ["rhi", "vulkan", "graphics", "rendering", "gpu"]
+categories = ["rendering", "rendering::graphics-api"]
 
 [dependencies]
 ash.workspace = true
@@ -15,3 +19,7 @@ bitflags.workspace = true
 
 [lints]
 workspace = true
+
+[package.metadata.docs.rs]
+all-features = true
+targets = ["x86_64-pc-windows-msvc", "aarch64-apple-darwin"]
