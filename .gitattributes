@@ -2,19 +2,6 @@
 # eol=lf overrides core.autocrlf, so a machine with autocrlf=true won't flip files to CRLF
 * text=auto eol=lf
 
-# Explicitly declare text files to always be normalized and converted to native line endings on checkout
-*.cpp text
-*.inl text
-*.h text
-*.hpp text
-*.tof text
-*.bat text
-
-# Force shell files to use LF only
-*.sh text eol=lf
-gradlew text eol=lf
-
 # Declare binary file types
-*.tga binary
-*.bof binary
-*.bin binary
+*.spv binary
+*.png binary
